@@ -299,6 +299,8 @@ export const useAuth = () => {
 export const getAllUsers = async (): Promise<
   (User & { password?: never })[]
 > => {
+  if (!supabase) return [];
+
   const { data, error } = await supabase.from(PROFILES_TABLE).select("*");
   if (error) {
     console.error("Error fetching users:", error);
