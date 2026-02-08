@@ -47,13 +47,18 @@ async function downloadThumbnail(
   cacheKey: string,
 ): Promise<string | null> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(url, {
       headers: {
         "User-Agent": "CoinKrazy-ThumbnailBot/1.0",
         Accept: "image/*",
       },
-      timeout: 30000, // 30 second timeout
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error(
