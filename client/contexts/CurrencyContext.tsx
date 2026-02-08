@@ -320,6 +320,12 @@ export const useCurrency = () => {
   return context;
 };
 
+// Safe version of useCurrency that returns null if not available
+export const useCurrencySafe = () => {
+  const context = useContext(CurrencyContext);
+  return context;
+};
+
 // Utility functions
 export const formatCurrency = (
   amount: number,
