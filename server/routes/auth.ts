@@ -5,14 +5,28 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Supabase credentials not configured");
-}
+console.log("[Auth Routes] Initializing Supabase...");
+console.log("[Auth Routes] VITE_SUPABASE_URL:", supabaseUrl ? "✓ Set" : "✗ Missing");
+console.log(
+  "[Auth Routes] VITE_SUPABASE_ANON_KEY:",
+  supabaseAnonKey ? "✓ Set" : "✗ Missing",
+);
 
 const supabase =
   supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      })
     : null;
+
+if (!supabase) {
+  console.error(
+    "[Auth Routes] Supabase client not initialized - auth will not work",
+  );
+}
 
 /**
  * POST /api/auth/login
