@@ -157,6 +157,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (data: RegisterData): Promise<boolean> => {
+    if (!supabase) return false;
+
     setIsLoading(true);
 
     if (data.password !== data.confirmPassword) {
