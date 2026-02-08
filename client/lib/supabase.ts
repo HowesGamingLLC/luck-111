@@ -21,5 +21,13 @@ export const supabase =
           autoRefreshToken: true,
           detectSessionInUrl: true,
         },
+        db: {
+          schema: "public",
+        },
+        global: {
+          headers: {
+            "X-Client-Info": "supabase-js-web",
+          },
+        },
       })
     : null;
