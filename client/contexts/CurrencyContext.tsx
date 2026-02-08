@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "./AuthContext";
+import { useAuthSafe } from "./AuthContext";
 
 export enum CurrencyType {
   GC = "GC", // Gold Coins (fun play)
@@ -75,7 +75,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(
 );
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const authContext = useAuth();
+  const authContext = useAuthSafe();
   const authUser = authContext?.user || null;
 
   const [user, setUser] = useState<UserProfile | null>(null);
