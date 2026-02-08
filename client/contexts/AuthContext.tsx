@@ -154,19 +154,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: credentials.email,
-      password: credentials.password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
 
-    if (error || !data.session?.user) {
+      if (error) {
+        console.error("Login error:", error.message);
+        setIsLoading(false);
+        return false;
+      }
+
+      if (!data.session?.user) {
+        setIsLoading(false);
+        return false;
+      }
+
+      await loadAndSetProfile(data.session.user.id);
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      console.error("Login error:", error);
       setIsLoading(false);
       return false;
     }
-
-    await loadAndSetProfile(data.session.user.id);
-    setIsLoading(false);
-    return true;
   };
 
   const register = async (data: RegisterData): Promise<boolean> => {
