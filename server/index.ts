@@ -57,6 +57,7 @@ import {
   logoutHandler,
   refreshHandler,
 } from "./routes/auth";
+import { healthHandler } from "./routes/health";
 
 export function createServer() {
   const app = express();
