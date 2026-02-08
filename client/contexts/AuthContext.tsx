@@ -172,7 +172,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (contentType?.includes("application/json")) {
           try {
             errorData = await response.json();
-            console.error("[Login] Error response:", errorData);
+            console.error("[Login] Error response status:", response.status);
+            console.error("[Login] Error response data:", JSON.stringify(errorData, null, 2));
+            console.error("[Login] Error message:", errorData?.error);
           } catch {
             console.error("[Login] Failed to parse error response JSON");
             errorData = { error: `HTTP ${response.status} error` };
@@ -180,6 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           const text = await response.text();
           console.error("[Login] Non-JSON error response:", text);
+          console.error("[Login] Response status:", response.status);
           errorData = { error: `HTTP ${response.status} error: ${text}` };
         }
         setIsLoading(false);
