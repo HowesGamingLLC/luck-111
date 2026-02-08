@@ -245,6 +245,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
+    if (!supabase) {
+      console.warn("Supabase not initialized - cannot update profile");
+      return;
+    }
 
     const updateRow: Record<string, any> = {};
     if (updates.name !== undefined) updateRow.name = updates.name;
