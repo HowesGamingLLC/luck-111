@@ -148,51 +148,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     setIsLoading(true);
 
-    if (!supabase) {
-      console.warn("Supabase not initialized - cannot login");
-      console.warn(
-        "Supabase URL:",
-        import.meta.env.VITE_SUPABASE_URL ? "✓ Set" : "✗ Missing",
-      );
-      console.warn(
-        "Supabase Anon Key:",
-        import.meta.env.VITE_SUPABASE_ANON_KEY ? "✓ Set" : "✗ Missing",
-      );
-      setIsLoading(false);
-      return false;
-    }
-
     try {
-      console.log("Attempting login for:", credentials.email);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
+      console.log("Attempting login via proxy for:", credentials.email);
+
+      // Call the backend proxy endpoint instead of Supabase directly
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password,
+        }),
       });
 
-      if (error) {
-        console.error("Supabase Auth Error:", {
-          message: error.message,
-          status: (error as any).status,
-          code: (error as any).code,
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Login error:", errorData.error);
         setIsLoading(false);
         return false;
       }
 
-      if (!data.session?.user) {
-        console.warn("No session user returned from login");
+      const { session, user } = await response.json();
+
+      if (!session || !user) {
+        console.warn("No session or user returned from login");
         setIsLoading(false);
         return false;
       }
 
-      await loadAndSetProfile(data.session.user.id);
+      // Store session in localStorage for persistence
+      localStorage.setItem(
+        "coinkrazy_auth_session",
+        JSON.stringify({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at,
+        }),
+      );
+
+      // Load and set the full user profile from the database
+      if (supabase) {
+        await loadAndSetProfile(user.id);
+      } else {
+        // Fallback: set a minimal user object
+        const minimalUser: User = {
+          id: user.id,
+          email: user.email,
+          name: "",
+          isAdmin: false,
+          verified: false,
+          kycStatus: "not_submitted",
+          createdAt: new Date(user.created_at),
+          lastLoginAt: new Date(),
+          totalLosses: 0,
+          jackpotOptIn: false,
+        };
+        setUser(minimalUser);
+        localStorage.setItem("coinkrazy_auth_user", JSON.stringify(minimalUser));
+      }
+
       setIsLoading(false);
       return true;
     } catch (error: unknown) {
       console.error("Login exception:", error);
       if (error instanceof Error) {
         console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
       }
       setIsLoading(false);
       return false;
