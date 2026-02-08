@@ -821,8 +821,7 @@ export function AIEmployeeManager({
                 {/* Status Indicator */}
                 <div className="text-xs text-muted-foreground">
                   Last active:{" "}
-                  {employee.lastActive.toRelativeTimeString?.() ||
-                    `${Math.floor((Date.now() - employee.lastActive.getTime()) / 60000)}m ago`}
+                  {`${Math.floor((Date.now() - employee.lastActive.getTime()) / 60000)}m ago`}
                 </div>
               </CardContent>
             </Card>
