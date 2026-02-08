@@ -108,5 +108,17 @@ export function createServer() {
   app.get("/api/public/embed/:providerId/:gameId", getPublicGameEmbed);
   app.get("/api/public/rate-limit", getRateLimitStatus);
 
+  // Transaction routes
+  app.get("/api/transactions", getUserTransactions);
+  app.get("/api/balance", getUserBalance);
+  app.post("/api/transactions", recordTransaction);
+
+  // Game routes (real database-backed)
+  app.get("/api/games", getAllGames);
+  app.get("/api/games/:id", getGame);
+  app.post("/api/game-sessions", createGameSession);
+  app.post("/api/game-sessions/end", endGameSession);
+  app.post("/api/game-sessions/validate", validateGameSession);
+
   return app;
 }
