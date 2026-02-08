@@ -44,7 +44,8 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CurrencyProvider>
           <JackpotProvider>
@@ -234,7 +235,8 @@ function App() {
           </JackpotProvider>
         </CurrencyProvider>
       </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
