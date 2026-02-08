@@ -4,7 +4,10 @@ import React, {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "./AuthContext";
 
 export enum CurrencyType {
   GC = "GC", // Gold Coins (fun play)
@@ -54,158 +57,190 @@ interface CurrencyContextType {
     amount: number,
     description: string,
     type?: "win" | "wager" | "bonus",
-  ) => void;
+  ) => Promise<void>;
   canAffordWager: (currency: CurrencyType, amount: number) => boolean;
-  addTransaction: (transaction: Omit<Transaction, "id" | "timestamp">) => void;
+  addTransaction: (transaction: Omit<Transaction, "id" | "timestamp">) => Promise<void>;
   getTransactionHistory: () => Transaction[];
-  claimWelcomeBonus: () => void;
+  claimWelcomeBonus: () => Promise<void>;
   canClaimDailySpin: () => boolean;
-  claimDailySpin: () => void;
+  claimDailySpin: () => Promise<void>;
   initializeUser: (userData: Partial<UserProfile>) => void;
+  isLoading: boolean;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(
   undefined,
 );
 
-// Mock initial user data
-const createInitialUser = (): UserProfile => ({
-  id: "user_12345",
-  email: "john.doe@example.com",
-  name: "John Doe",
-  balance: {
-    goldCoins: 0,
-    sweepCoins: 0,
-  },
-  isNewUser: true,
-  lastDailySpinClaim: null,
-  totalWagered: {
-    goldCoins: 0,
-    sweepCoins: 0,
-  },
-  totalWon: {
-    goldCoins: 0,
-    sweepCoins: 0,
-  },
-  verified: true,
-  level: 1,
-});
-
 export function CurrencyProvider({ children }: { children: ReactNode }) {
+  const authContext = useAuth();
+  const authUser = authContext?.user || null;
+  
   const [user, setUser] = useState<UserProfile | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyType>(
     CurrencyType.GC,
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize user on mount
+  // Load user balance and transactions from Supabase
+  const loadUserData = useCallback(async () => {
+    if (!authUser || !supabase) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Fetch user balance
+      const { data: balanceData, error: balanceError } = await supabase
+        .from("user_balances")
+        .select("*")
+        .eq("user_id", authUser.id)
+        .single();
+
+      if (balanceError && balanceError.code !== "PGRST116") {
+        console.error("Error loading balance:", balanceError);
+      }
+
+      // Fetch transactions
+      const { data: transactionData, error: transError } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("user_id", authUser.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (transError) {
+        console.error("Error loading transactions:", transError);
+      }
+
+      // Build user profile
+      const profile: UserProfile = {
+        id: authUser.id,
+        email: authUser.email,
+        name: authUser.name || "",
+        balance: {
+          goldCoins: balanceData?.gold_coins || 0,
+          sweepCoins: balanceData?.sweep_coins || 0,
+        },
+        isNewUser: !balanceData?.gold_coins,
+        lastDailySpinClaim: authUser.lastDailySpinClaim || null,
+        totalWagered: authUser.totalWagered || { goldCoins: 0, sweepCoins: 0 },
+        totalWon: authUser.totalWon || { goldCoins: 0, sweepCoins: 0 },
+        verified: authUser.verified || false,
+        level: authUser.level || 1,
+      };
+
+      setUser(profile);
+
+      // Convert transactions
+      const mappedTransactions: Transaction[] = (transactionData || []).map(
+        (t: any) => ({
+          id: t.id,
+          type: t.type,
+          currency: t.currency,
+          amount: t.amount,
+          description: t.description,
+          timestamp: new Date(t.created_at),
+          gameType: t.game_type,
+        }),
+      );
+
+      setTransactions(mappedTransactions);
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [authUser]);
+
+  // Load data when auth user changes
   useEffect(() => {
-    const savedUser = localStorage.getItem("coinkrazy_user");
-    if (savedUser) {
+    loadUserData();
+  }, [loadUserData]);
+
+  // Create or update user balance
+  const ensureUserBalance = useCallback(
+    async (userId: string) => {
+      if (!supabase) return;
+
+      const { data: existing } = await supabase
+        .from("user_balances")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (!existing) {
+        await supabase.from("user_balances").insert({
+          user_id: userId,
+          gold_coins: 10000, // Welcome bonus
+          sweep_coins: 10,
+          bonus_coins: 0,
+        });
+      }
+    },
+    [],
+  );
+
+  const updateBalance = useCallback(
+    async (
+      currency: CurrencyType,
+      amount: number,
+      description: string,
+      type: "win" | "wager" | "bonus" = "win",
+    ) => {
+      if (!authUser || !supabase || !user) return;
+
       try {
-        const parsedUser = JSON.parse(savedUser);
-        // Convert date strings back to Date objects
-        if (parsedUser.lastDailySpinClaim) {
-          parsedUser.lastDailySpinClaim = new Date(
-            parsedUser.lastDailySpinClaim,
-          );
-        }
-        setUser(parsedUser);
+        const field = currency === CurrencyType.GC ? "gold_coins" : "sweep_coins";
+
+        // Update balance in database
+        const { data: currentBalance } = await supabase
+          .from("user_balances")
+          .select(field)
+          .eq("user_id", authUser.id)
+          .single();
+
+        const newBalance = Math.max(0, (currentBalance?.[field] || 0) + amount);
+
+        await supabase
+          .from("user_balances")
+          .update({ [field]: newBalance })
+          .eq("user_id", authUser.id);
+
+        // Record transaction
+        await supabase.from("transactions").insert({
+          user_id: authUser.id,
+          type,
+          currency,
+          amount,
+          description,
+          balance_before: currentBalance?.[field] || 0,
+          balance_after: newBalance,
+        });
+
+        // Update local state
+        setUser((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            balance: {
+              ...prev.balance,
+              [currency === CurrencyType.GC ? "goldCoins" : "sweepCoins"]: newBalance,
+            },
+          };
+        });
+
+        // Reload transactions
+        await loadUserData();
       } catch (error) {
-        console.error("Error parsing saved user data:", error);
-        const newUser = createInitialUser();
-        setUser(newUser);
-        localStorage.setItem("coinkrazy_user", JSON.stringify(newUser));
+        console.error("Error updating balance:", error);
       }
-    } else {
-      const newUser = createInitialUser();
-      setUser(newUser);
-      localStorage.setItem("coinkrazy_user", JSON.stringify(newUser));
-    }
-
-    // Load transactions
-    const savedTransactions = localStorage.getItem("coinkrazy_transactions");
-    if (savedTransactions) {
-      try {
-        const parsedTransactions = JSON.parse(savedTransactions).map(
-          (t: any) => ({
-            ...t,
-            timestamp: new Date(t.timestamp),
-          }),
-        );
-        setTransactions(parsedTransactions);
-      } catch (error) {
-        console.error("Error parsing saved transactions:", error);
-      }
-    }
-  }, []);
-
-  // Save user data to localStorage whenever it changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("coinkrazy_user", JSON.stringify(user));
-    }
-  }, [user]);
-
-  // Save transactions to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(
-      "coinkrazy_transactions",
-      JSON.stringify(transactions),
-    );
-  }, [transactions]);
-
-  const initializeUser = (userData: Partial<UserProfile>) => {
-    const newUser = { ...createInitialUser(), ...userData };
-    setUser(newUser);
-  };
-
-  const updateBalance = (
-    currency: CurrencyType,
-    amount: number,
-    description: string,
-    type: "win" | "wager" | "bonus" = "win",
-  ) => {
-    if (!user) return;
-
-    setUser((prevUser) => {
-      if (!prevUser) return prevUser;
-
-      const updatedUser = { ...prevUser };
-
-      if (currency === CurrencyType.GC) {
-        updatedUser.balance.goldCoins = Math.max(
-          0,
-          updatedUser.balance.goldCoins + amount,
-        );
-        if (type === "win") {
-          updatedUser.totalWon.goldCoins += Math.max(0, amount);
-        } else if (type === "wager") {
-          updatedUser.totalWagered.goldCoins += Math.abs(amount);
-        }
-      } else {
-        updatedUser.balance.sweepCoins = Math.max(
-          0,
-          updatedUser.balance.sweepCoins + amount,
-        );
-        if (type === "win") {
-          updatedUser.totalWon.sweepCoins += Math.max(0, amount);
-        } else if (type === "wager") {
-          updatedUser.totalWagered.sweepCoins += Math.abs(amount);
-        }
-      }
-
-      return updatedUser;
-    });
-
-    // Add transaction
-    addTransaction({
-      type,
-      currency,
-      amount,
-      description,
-    });
-  };
+    },
+    [authUser, user, loadUserData],
+  );
 
   const canAffordWager = (currency: CurrencyType, amount: number): boolean => {
     if (!user) return false;
@@ -217,53 +252,45 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addTransaction = (
-    transaction: Omit<Transaction, "id" | "timestamp">,
-  ) => {
-    const newTransaction: Transaction = {
-      ...transaction,
-      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date(),
-    };
+  const addTransaction = useCallback(
+    async (transaction: Omit<Transaction, "id" | "timestamp">) => {
+      if (!authUser || !supabase) return;
 
-    setTransactions((prev) => [newTransaction, ...prev].slice(0, 100)); // Keep last 100 transactions
-  };
+      try {
+        const { data } = await supabase.from("transactions").insert({
+          user_id: authUser.id,
+          type: transaction.type,
+          currency: transaction.currency,
+          amount: transaction.amount,
+          description: transaction.description,
+          game_type: transaction.gameType,
+        });
+
+        // Reload transactions
+        await loadUserData();
+      } catch (error) {
+        console.error("Error adding transaction:", error);
+      }
+    },
+    [authUser, loadUserData],
+  );
 
   const getTransactionHistory = (): Transaction[] => {
     return transactions;
   };
 
-  const claimWelcomeBonus = () => {
-    if (!user || !user.isNewUser) return;
+  const claimWelcomeBonus = useCallback(async () => {
+    if (!user || !user.isNewUser || !authUser || !supabase) return;
 
-    setUser((prevUser) => {
-      if (!prevUser) return prevUser;
-
-      return {
-        ...prevUser,
-        isNewUser: false,
-        balance: {
-          goldCoins: prevUser.balance.goldCoins + 10000,
-          sweepCoins: prevUser.balance.sweepCoins + 10,
-        },
-      };
-    });
-
-    // Add welcome bonus transactions
-    addTransaction({
-      type: "bonus",
-      currency: CurrencyType.GC,
-      amount: 10000,
-      description: "Welcome Bonus - Gold Coins",
-    });
-
-    addTransaction({
-      type: "bonus",
-      currency: CurrencyType.SC,
-      amount: 10,
-      description: "Welcome Bonus - Sweep Coins",
-    });
-  };
+    try {
+      // Update to non-new-user status (handled in auth context)
+      // Add welcome bonus
+      await updateBalance(CurrencyType.GC, 10000, "Welcome Bonus - Gold Coins", "bonus");
+      await updateBalance(CurrencyType.SC, 10, "Welcome Bonus - Sweep Coins", "bonus");
+    } catch (error) {
+      console.error("Error claiming welcome bonus:", error);
+    }
+  }, [user, authUser, updateBalance]);
 
   const canClaimDailySpin = (): boolean => {
     if (!user) return false;
@@ -278,17 +305,42 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     return hoursDiff >= 24;
   };
 
-  const claimDailySpin = () => {
-    if (!user || !canClaimDailySpin()) return;
+  const claimDailySpin = useCallback(async () => {
+    if (!user || !canClaimDailySpin() || !authUser || !supabase) return;
 
-    setUser((prevUser) => {
-      if (!prevUser) return prevUser;
+    try {
+      // Update last daily spin claim in profiles table
+      await supabase
+        .from("profiles")
+        .update({ last_daily_spin_claim: new Date().toISOString() })
+        .eq("id", authUser.id);
 
-      return {
-        ...prevUser,
-        lastDailySpinClaim: new Date(),
-      };
-    });
+      setUser((prev) => {
+        if (!prev) return prev;
+        return { ...prev, lastDailySpinClaim: new Date() };
+      });
+    } catch (error) {
+      console.error("Error claiming daily spin:", error);
+    }
+  }, [user, authUser, canClaimDailySpin]);
+
+  const initializeUser = (userData: Partial<UserProfile>) => {
+    if (!user) {
+      setUser({
+        id: userData.id || "",
+        email: userData.email || "",
+        name: userData.name || "",
+        balance: userData.balance || { goldCoins: 0, sweepCoins: 0 },
+        isNewUser: userData.isNewUser !== false,
+        lastDailySpinClaim: userData.lastDailySpinClaim || null,
+        totalWagered: userData.totalWagered || { goldCoins: 0, sweepCoins: 0 },
+        totalWon: userData.totalWon || { goldCoins: 0, sweepCoins: 0 },
+        verified: userData.verified || false,
+        level: userData.level || 1,
+      });
+    } else {
+      setUser((prev) => (prev ? { ...prev, ...userData } : null));
+    }
   };
 
   const contextValue: CurrencyContextType = {
@@ -303,6 +355,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     canClaimDailySpin,
     claimDailySpin,
     initializeUser,
+    isLoading,
   };
 
   return (
