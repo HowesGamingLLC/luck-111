@@ -47,7 +47,7 @@ interface Player {
 }
 
 // Mock leaderboard data
-const mockLeaderboards = {
+const mockLeaderboards: Record<string, Record<string, Player[]>> = {
   daily: {
     biggestWinners: [
       {
