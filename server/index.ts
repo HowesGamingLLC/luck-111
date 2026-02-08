@@ -74,6 +74,12 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Auth routes (proxy to Supabase)
+  app.post("/api/auth/login", loginHandler);
+  app.post("/api/auth/register", registerHandler);
+  app.post("/api/auth/logout", logoutHandler);
+  app.post("/api/auth/refresh", refreshHandler);
+
   // Tournament routes
   app.get("/api/tournaments", getTournaments);
   app.get("/api/tournaments/:id", getTournament);
