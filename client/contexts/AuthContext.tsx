@@ -234,7 +234,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setUser(null);
     localStorage.removeItem("coinkrazy_auth_user");
     localStorage.removeItem("coinkrazy_user");
