@@ -73,6 +73,8 @@ export function createServer() {
     res.json({ message: ping });
   });
 
+  app.get("/api/health", healthHandler);
+
   app.get("/api/demo", handleDemo);
 
   // Auth routes (proxy to Supabase)
