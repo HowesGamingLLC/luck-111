@@ -150,23 +150,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!supabase) {
       console.warn("Supabase not initialized - cannot login");
+      console.warn(
+        "Supabase URL:",
+        import.meta.env.VITE_SUPABASE_URL ? "✓ Set" : "✗ Missing",
+      );
+      console.warn(
+        "Supabase Anon Key:",
+        import.meta.env.VITE_SUPABASE_ANON_KEY ? "✓ Set" : "✗ Missing",
+      );
       setIsLoading(false);
       return false;
     }
 
     try {
+      console.log("Attempting login for:", credentials.email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       });
 
       if (error) {
-        console.error("Login error:", error.message);
+        console.error("Supabase Auth Error:", {
+          message: error.message,
+          status: (error as any).status,
+          code: (error as any).code,
+        });
         setIsLoading(false);
         return false;
       }
 
       if (!data.session?.user) {
+        console.warn("No session user returned from login");
         setIsLoading(false);
         return false;
       }
@@ -174,8 +188,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loadAndSetProfile(data.session.user.id);
       setIsLoading(false);
       return true;
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (error: unknown) {
+      console.error("Login exception:", error);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
       setIsLoading(false);
       return false;
     }
