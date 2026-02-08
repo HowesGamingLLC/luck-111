@@ -1,6 +1,11 @@
 import { RequestHandler } from "express";
 import { createClient } from "@supabase/supabase-js";
 
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || "",
+  process.env.VITE_SUPABASE_ANON_KEY || "",
+);
+
 // Get user transactions
 export const getUserTransactions: RequestHandler = async (req, res) => {
   try {
