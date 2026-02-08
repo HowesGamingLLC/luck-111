@@ -34,11 +34,15 @@ if (!supabase) {
  */
 export const loginHandler: RequestHandler = async (req, res) => {
   try {
+    console.log("[Auth] Login attempt");
+
     if (!supabase) {
+      console.error("[Auth] Supabase not initialized");
       return res.status(500).json({ error: "Authentication service unavailable" });
     }
 
     const { email, password } = req.body;
+    console.log("[Auth] Login for email:", email);
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password required" });
@@ -50,31 +54,38 @@ export const loginHandler: RequestHandler = async (req, res) => {
     });
 
     if (error) {
-      console.error("Supabase auth error:", error);
-      return res.status(401).json({ error: error.message });
+      console.error("[Auth] Supabase auth error:", error);
+      return res.status(401).json({ error: error.message || "Authentication failed" });
     }
 
     if (!data.session) {
+      console.error("[Auth] No session returned from Supabase");
       return res.status(401).json({ error: "No session returned" });
     }
 
+    console.log("[Auth] Login successful for:", email);
+
     // Return session and user data
-    res.json({
+    const responseData = {
       session: {
         access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        expires_in: data.session.expires_in,
-        expires_at: data.session.expires_at,
+        refresh_token: data.session.refresh_token || null,
+        expires_in: data.session.expires_in || null,
+        expires_at: data.session.expires_at || null,
       },
       user: {
         id: data.user.id,
-        email: data.user.email,
-        created_at: data.user.created_at,
+        email: data.user.email || email,
+        created_at: data.user.created_at || new Date().toISOString(),
       },
-    });
+    };
+
+    res.setHeader("Content-Type", "application/json");
+    res.json(responseData);
   } catch (error) {
-    console.error("Login handler error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("[Auth] Login handler exception:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    res.status(500).json({ error: errorMessage });
   }
 };
 
