@@ -20,6 +20,7 @@ interface WheelSegment {
 interface DailySpinWheelProps {
   size?: number;
   onSpin?: (result: WheelSegment) => void;
+  disabled?: boolean;
 }
 
 // Updated segments for SC rewards with better RTP
