@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { JackpotProvider } from "@/contexts/JackpotContext";
 import { AuthGuard } from "@/components/AuthGuard";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
