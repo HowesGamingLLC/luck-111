@@ -94,7 +94,7 @@ export class ErrorBoundary extends React.Component<
 
               <div className="flex gap-3 pt-4">
                 <Button
-                  onClick={() => window.location.href = "/"}
+                  onClick={() => (window.location.href = "/")}
                   className="w-full bg-teal hover:bg-teal/90"
                 >
                   Go Home

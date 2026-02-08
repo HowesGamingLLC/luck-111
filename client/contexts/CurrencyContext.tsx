@@ -59,7 +59,9 @@ interface CurrencyContextType {
     type?: "win" | "wager" | "bonus",
   ) => Promise<void>;
   canAffordWager: (currency: CurrencyType, amount: number) => boolean;
-  addTransaction: (transaction: Omit<Transaction, "id" | "timestamp">) => Promise<void>;
+  addTransaction: (
+    transaction: Omit<Transaction, "id" | "timestamp">,
+  ) => Promise<void>;
   getTransactionHistory: () => Transaction[];
   claimWelcomeBonus: () => Promise<void>;
   canClaimDailySpin: () => boolean;
@@ -75,7 +77,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const authContext = useAuth();
   const authUser = authContext?.user || null;
-  
+
   const [user, setUser] = useState<UserProfile | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyType>(
     CurrencyType.GC,
@@ -162,27 +164,24 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   }, [loadUserData]);
 
   // Create or update user balance
-  const ensureUserBalance = useCallback(
-    async (userId: string) => {
-      if (!supabase) return;
+  const ensureUserBalance = useCallback(async (userId: string) => {
+    if (!supabase) return;
 
-      const { data: existing } = await supabase
-        .from("user_balances")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
+    const { data: existing } = await supabase
+      .from("user_balances")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
 
-      if (!existing) {
-        await supabase.from("user_balances").insert({
-          user_id: userId,
-          gold_coins: 10000, // Welcome bonus
-          sweep_coins: 10,
-          bonus_coins: 0,
-        });
-      }
-    },
-    [],
-  );
+    if (!existing) {
+      await supabase.from("user_balances").insert({
+        user_id: userId,
+        gold_coins: 10000, // Welcome bonus
+        sweep_coins: 10,
+        bonus_coins: 0,
+      });
+    }
+  }, []);
 
   const updateBalance = useCallback(
     async (
@@ -194,7 +193,8 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       if (!authUser || !supabase || !user) return;
 
       try {
-        const field = currency === CurrencyType.GC ? "gold_coins" : "sweep_coins";
+        const field =
+          currency === CurrencyType.GC ? "gold_coins" : "sweep_coins";
 
         // Update balance in database
         const { data: currentBalance } = await supabase
@@ -228,7 +228,8 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
             ...prev,
             balance: {
               ...prev.balance,
-              [currency === CurrencyType.GC ? "goldCoins" : "sweepCoins"]: newBalance,
+              [currency === CurrencyType.GC ? "goldCoins" : "sweepCoins"]:
+                newBalance,
             },
           };
         });
@@ -285,8 +286,18 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     try {
       // Update to non-new-user status (handled in auth context)
       // Add welcome bonus
-      await updateBalance(CurrencyType.GC, 10000, "Welcome Bonus - Gold Coins", "bonus");
-      await updateBalance(CurrencyType.SC, 10, "Welcome Bonus - Sweep Coins", "bonus");
+      await updateBalance(
+        CurrencyType.GC,
+        10000,
+        "Welcome Bonus - Gold Coins",
+        "bonus",
+      );
+      await updateBalance(
+        CurrencyType.SC,
+        10,
+        "Welcome Bonus - Sweep Coins",
+        "bonus",
+      );
     } catch (error) {
       console.error("Error claiming welcome bonus:", error);
     }

@@ -18,6 +18,7 @@
 After running the SQL schema, you need to create the admin user. There are two ways:
 
 ### Option A: Using Supabase Console (Recommended)
+
 1. Go to Authentication → Users
 2. Click "Add User"
 3. Email: `coinkrazy26@gmail.com`
@@ -26,16 +27,18 @@ After running the SQL schema, you need to create the admin user. There are two w
 6. Create user
 
 Then update the profile to make them admin:
+
 1. Go to SQL Editor
 2. Run this query:
 
 ```sql
-UPDATE profiles 
-SET is_admin = true, verified = true 
+UPDATE profiles
+SET is_admin = true, verified = true
 WHERE email = 'coinkrazy26@gmail.com';
 ```
 
 ### Option B: Using the Admin Setup Script
+
 ```bash
 # Will be provided after auth context setup
 ```
@@ -49,6 +52,7 @@ SELECT id, email, name, is_admin, verified FROM profiles WHERE email = 'coinkraz
 ```
 
 You should see:
+
 - is_admin: true
 - verified: true
 
@@ -91,6 +95,7 @@ ON CONFLICT DO NOTHING;
 ## Environment Variables
 
 Your `.env` file is already configured with:
+
 ```
 VITE_SUPABASE_URL=https://muasmmfdpmcqxgzcjlgz.supabase.com
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -107,19 +112,23 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ## Troubleshooting
 
 **Issue: "useAuth must be used within an AuthProvider"**
+
 - Solution: Ensure AuthProvider is rendering properly in App.tsx (already configured)
 
 **Issue: Connection refused**
+
 - Solution: Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env
 - Verify they match your Supabase project
 
 **Issue: Authentication fails**
+
 - Solution: Verify user was created in Supabase auth
 - Check that profile row exists for the user email
 
 ## Security Notes
 
 ⚠️ For production:
+
 - Change admin password immediately after setup
 - Enable 2FA in Supabase
 - Set up email confirmation

@@ -110,7 +110,8 @@ export const recordTransaction: RequestHandler = async (req, res) => {
       .eq("user_id", userId)
       .single();
 
-    const currentBalance = balance?.[currency === "GC" ? "gold_coins" : "sweep_coins"] || 0;
+    const currentBalance =
+      balance?.[currency === "GC" ? "gold_coins" : "sweep_coins"] || 0;
     const newBalance = Math.max(0, currentBalance + amount);
 
     // Update balance

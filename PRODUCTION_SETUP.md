@@ -1,6 +1,7 @@
 # CoinKrazy MVP - Complete Production Setup Guide
 
 ## Overview
+
 This guide walks you through setting up CoinKrazy as a production-ready gaming platform with real authentication, database integration, and game management.
 
 ---
@@ -8,6 +9,7 @@ This guide walks you through setting up CoinKrazy as a production-ready gaming p
 ## Phase 1: Database Setup (Supabase)
 
 ### Step 1.1: Create Supabase Tables
+
 1. Go to: https://app.supabase.com → Select project `muasmmfdpmcqxgzcjlgz`
 2. Go to **SQL Editor**
 3. Create new query
@@ -15,6 +17,7 @@ This guide walks you through setting up CoinKrazy as a production-ready gaming p
 5. ✅ All tables, indexes, and security policies created
 
 **Tables Created:**
+
 - `profiles` - User accounts and profiles
 - `user_balances` - Currency balances (Gold Coins, Sweep Coins)
 - `transactions` - All user transactions
@@ -28,6 +31,7 @@ This guide walks you through setting up CoinKrazy as a production-ready gaming p
 ### Step 1.2: Create Admin User
 
 #### Option A: Via Supabase Console (Easiest)
+
 1. Go to **Authentication** → **Users**
 2. Click **Add User**
 3. Enter:
@@ -37,6 +41,7 @@ This guide walks you through setting up CoinKrazy as a production-ready gaming p
 4. Click **Save**
 
 #### Option B: Via SQL
+
 ```sql
 -- Create user via SQL (if needed)
 INSERT INTO auth.users (email, encrypted_password, email_confirmed_at)
@@ -48,9 +53,10 @@ VALUES (
 ```
 
 ### Step 1.3: Make User Admin
+
 ```sql
 -- Run in SQL Editor
-UPDATE profiles 
+UPDATE profiles
 SET is_admin = true, verified = true, level = 50
 WHERE email = 'coinkrazy26@gmail.com';
 ```
@@ -87,14 +93,18 @@ VALUES
 ## Phase 2: Environment Configuration
 
 ### Step 2.1: Update .env File
+
 Your `.env` file is already configured with:
+
 ```
 VITE_SUPABASE_URL=https://muasmmfdpmcqxgzcjlgz.supabase.com
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
 ```
 
 ### Step 2.2: Server Environment Variables (Optional for advanced setup)
+
 Create `.env.local` or add to your deployment platform:
+
 ```
 VITE_SUPABASE_URL=https://muasmmfdpmcqxgzcjlgz.supabase.com
 VITE_SUPABASE_ANON_KEY=<your_anon_key>
@@ -105,12 +115,15 @@ VITE_SUPABASE_ANON_KEY=<your_anon_key>
 ## Phase 3: Test the Application
 
 ### Step 3.1: Start Dev Server
+
 ```bash
 pnpm dev
 ```
+
 App should be available at http://localhost:8080
 
 ### Step 3.2: Test Login
+
 1. Go to http://localhost:8080
 2. Click **Login**
 3. Enter credentials:
@@ -119,6 +132,7 @@ App should be available at http://localhost:8080
 4. ✅ Should see dashboard
 
 ### Step 3.3: Test Admin Features
+
 1. After login, go to `/admin`
 2. Should see admin panel with:
    - User management
@@ -127,6 +141,7 @@ App should be available at http://localhost:8080
    - Analytics
 
 ### Step 3.4: Test Game Features
+
 1. Go to **Games** section
 2. Click on any game
 3. Should load game session with real database integration
@@ -139,6 +154,7 @@ App should be available at http://localhost:8080
 All endpoints use real Supabase database:
 
 ### Transaction Endpoints
+
 ```
 GET  /api/transactions?userId=xxx&limit=100    # Get user transactions
 GET  /api/balance?userId=xxx                    # Get user balance
@@ -146,6 +162,7 @@ POST /api/transactions                          # Record new transaction
 ```
 
 ### Game Endpoints
+
 ```
 GET  /api/games?type=slots                      # List all games
 GET  /api/games/:id                             # Get specific game
@@ -155,6 +172,7 @@ POST /api/game-sessions/validate                # Validate session
 ```
 
 ### Tournament Endpoints
+
 ```
 GET  /api/tournaments                           # List tournaments
 POST /api/tournaments                           # Create tournament
@@ -167,6 +185,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 ## Phase 5: Production Deployment
 
 ### Option A: Netlify Deployment
+
 1. Push code to GitHub (already configured)
 2. Connect GitHub repo to Netlify
 3. Set environment variables:
@@ -175,11 +194,13 @@ POST /api/tournaments/:id/start                 # Start tournament
 4. Deploy automatically on push
 
 ### Option B: Vercel Deployment
+
 1. Import GitHub repository
 2. Set environment variables (same as above)
 3. Deploy
 
 ### Option C: Self-Hosted
+
 1. Run `pnpm build`
 2. Serve `dist/spa` folder as static files
 3. Run `node dist/server/node-build.mjs` for backend
@@ -189,6 +210,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 ## Phase 6: Post-Launch Checklist
 
 ### Security
+
 - [ ] Change admin password immediately
 - [ ] Enable 2FA in Supabase
 - [ ] Set up email verification
@@ -197,12 +219,14 @@ POST /api/tournaments/:id/start                 # Start tournament
 - [ ] Enable SSL enforcement
 
 ### Monitoring
+
 - [ ] Set up error logging (ErrorBoundary in place)
 - [ ] Monitor Supabase usage
 - [ ] Set up alerts for API failures
 - [ ] Review transaction logs
 
 ### Content
+
 - [ ] Update game details and descriptions
 - [ ] Add proper game thumbnails
 - [ ] Configure bonus amounts
@@ -210,6 +234,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 - [ ] Update terms and conditions
 
 ### Testing
+
 - [ ] Test all game types
 - [ ] Test tournament flow
 - [ ] Test payment features
@@ -221,12 +246,14 @@ POST /api/tournaments/:id/start                 # Start tournament
 ## Key Features Implemented
 
 ### ✅ Authentication
+
 - Real Supabase authentication
 - Admin role management
 - KYC status tracking
 - Session management
 
 ### ✅ Wallet & Transactions
+
 - Gold Coins (play money)
 - Sweep Coins (real money)
 - Real-time balance updates
@@ -234,6 +261,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 - Automatic balance validation
 
 ### ✅ Games
+
 - Multiple game types (Slots, Bingo, Poker, Roulette, Blackjack, Baccarat)
 - Game session management
 - Provably fair RNG
@@ -241,6 +269,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 - Win/loss recording
 
 ### ✅ Tournaments
+
 - Tournament creation and scheduling
 - Player registration
 - Leaderboards
@@ -248,18 +277,21 @@ POST /api/tournaments/:id/start                 # Start tournament
 - Multiple tournament types
 
 ### ✅ Jackpots
+
 - Progressive jackpots
 - User opt-in system
 - Contribution tracking
 - Win notifications
 
 ### ✅ Leaderboards
+
 - Daily/Weekly/Monthly rankings
 - Multiple categories
 - Real-time updates
 - User position tracking
 
 ### ✅ Admin Panel
+
 - User management
 - Game management
 - Tournament administration
@@ -267,6 +299,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 - Admin action logging
 
 ### ✅ Production Ready
+
 - Error boundaries for crashes
 - Graceful Supabase integration
 - Database validation
@@ -278,29 +311,38 @@ POST /api/tournaments/:id/start                 # Start tournament
 ## Troubleshooting
 
 ### Login Issues
+
 **Problem**: "Invalid credentials"
+
 - **Solution**: Verify user exists in Supabase → Authentication → Users
 - Check email confirmation status
 
 **Problem**: "useAuth must be used within AuthProvider"
+
 - **Solution**: This is already fixed with ErrorBoundary wrapper
 
 ### Database Issues
+
 **Problem**: "Cannot connect to Supabase"
+
 - **Solution**: Verify environment variables in .env
 - Check Supabase project is active
 - Verify API key hasn't expired
 
 **Problem**: "Insufficient balance" on wagers
+
 - **Solution**: User balance not initialized
 - Run: `INSERT INTO user_balances (user_id, gold_coins, sweep_coins) VALUES (user_id, 10000, 100)`
 
 ### Game Issues
+
 **Problem**: "Game not found"
+
 - **Solution**: Verify games inserted in `games` table
 - Check game `active` flag is true
 
 **Problem**: Session validation fails
+
 - **Solution**: Check `game_sessions` table has the session
 - Verify session token matches
 
@@ -309,6 +351,7 @@ POST /api/tournaments/:id/start                 # Start tournament
 ## Support & Maintenance
 
 ### Regular Tasks
+
 - Monitor error logs daily
 - Review user feedback
 - Update game content monthly
@@ -316,12 +359,14 @@ POST /api/tournaments/:id/start                 # Start tournament
 - Adjust bonuses/payouts as needed
 
 ### Performance Optimization
+
 - Index frequently queried columns (already done)
 - Archive old transaction records
 - Monitor database size
 - Optimize expensive queries
 
 ### Updates
+
 - Keep Supabase packages updated
 - Update React and dependencies regularly
 - Monitor security advisories
@@ -343,6 +388,7 @@ Your CoinKrazy MVP is now production-ready with:
 ✅ Security policies
 
 **Next Steps:**
+
 1. Run database.sql in Supabase
 2. Create admin user
 3. Initialize games and jackpots

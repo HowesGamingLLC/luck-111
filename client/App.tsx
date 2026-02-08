@@ -46,195 +46,195 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CurrencyProvider>
-          <JackpotProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <AuthGuard>
-                          <Dashboard />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games"
-                      element={
-                        <AuthGuard>
-                          <Games />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/slots"
-                      element={
-                        <AuthGuard>
-                          <EnhancedSlotsPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/slots/docs"
-                      element={<FreeSlotsDocs />}
-                    />
-                    <Route
-                      path="/games/bingo"
-                      element={
-                        <AuthGuard>
-                          <BingoPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/sportsbook"
-                      element={
-                        <AuthGuard>
-                          <SportsbookPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/table"
-                      element={
-                        <AuthGuard>
-                          <TableGamesPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/poker"
-                      element={
-                        <AuthGuard>
-                          <PokerPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/games/mini"
-                      element={
-                        <AuthGuard>
-                          <MiniGamesPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/tournaments"
-                      element={
-                        <AuthGuard>
-                          <Tournaments />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/account/settings"
-                      element={
-                        <AuthGuard>
-                          <AccountSettings />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/referrals" element={<Referrals />} />
-                    <Route path="/help" element={<Help />} />
-                    <Route
-                      path="/profile"
-                      element={
-                        <AuthGuard>
-                          <Profile />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/wallet"
-                      element={
-                        <AuthGuard>
-                          <WalletPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/wallet/enhanced"
-                      element={
-                        <AuthGuard>
-                          <WalletEnhanced />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/settings"
-                      element={
-                        <AuthGuard>
-                          <SettingsPage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/admin"
-                      element={
-                        <AuthGuard requireAdmin={true}>
-                          <AdminPanel />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/admin/packages"
-                      element={
-                        <AuthGuard requireAdmin={true}>
-                          <AdminPackages />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/admin/ai-employees"
-                      element={
-                        <AuthGuard requireAdmin={true}>
-                          <AIEmployeePage />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/admin/*"
-                      element={
-                        <AuthGuard requireAdmin={true}>
-                          <AdminPanel />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/kyc"
-                      element={
-                        <AuthGuard>
-                          <KYC />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route
-                      path="/withdraw"
-                      element={
-                        <AuthGuard>
-                          <Withdraw />
-                        </AuthGuard>
-                      }
-                    />
-                    <Route path="/store" element={<Store />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Layout>
-              </BrowserRouter>
-            </TooltipProvider>
-          </JackpotProvider>
-        </CurrencyProvider>
-      </AuthProvider>
+        <AuthProvider>
+          <CurrencyProvider>
+            <JackpotProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <AuthGuard>
+                            <Dashboard />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games"
+                        element={
+                          <AuthGuard>
+                            <Games />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/slots"
+                        element={
+                          <AuthGuard>
+                            <EnhancedSlotsPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/slots/docs"
+                        element={<FreeSlotsDocs />}
+                      />
+                      <Route
+                        path="/games/bingo"
+                        element={
+                          <AuthGuard>
+                            <BingoPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/sportsbook"
+                        element={
+                          <AuthGuard>
+                            <SportsbookPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/table"
+                        element={
+                          <AuthGuard>
+                            <TableGamesPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/poker"
+                        element={
+                          <AuthGuard>
+                            <PokerPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/games/mini"
+                        element={
+                          <AuthGuard>
+                            <MiniGamesPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/tournaments"
+                        element={
+                          <AuthGuard>
+                            <Tournaments />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/account/settings"
+                        element={
+                          <AuthGuard>
+                            <AccountSettings />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/referrals" element={<Referrals />} />
+                      <Route path="/help" element={<Help />} />
+                      <Route
+                        path="/profile"
+                        element={
+                          <AuthGuard>
+                            <Profile />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/wallet"
+                        element={
+                          <AuthGuard>
+                            <WalletPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/wallet/enhanced"
+                        element={
+                          <AuthGuard>
+                            <WalletEnhanced />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <AuthGuard>
+                            <SettingsPage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/admin"
+                        element={
+                          <AuthGuard requireAdmin={true}>
+                            <AdminPanel />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/admin/packages"
+                        element={
+                          <AuthGuard requireAdmin={true}>
+                            <AdminPackages />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/admin/ai-employees"
+                        element={
+                          <AuthGuard requireAdmin={true}>
+                            <AIEmployeePage />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/admin/*"
+                        element={
+                          <AuthGuard requireAdmin={true}>
+                            <AdminPanel />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/kyc"
+                        element={
+                          <AuthGuard>
+                            <KYC />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route
+                        path="/withdraw"
+                        element={
+                          <AuthGuard>
+                            <Withdraw />
+                          </AuthGuard>
+                        }
+                      />
+                      <Route path="/store" element={<Store />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                </BrowserRouter>
+              </TooltipProvider>
+            </JackpotProvider>
+          </CurrencyProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

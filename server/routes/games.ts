@@ -12,10 +12,7 @@ export const getAllGames: RequestHandler = async (req, res) => {
   try {
     const gameType = req.query.type as string;
 
-    let query = supabase
-      .from("games")
-      .select("*")
-      .eq("active", true);
+    let query = supabase.from("games").select("*").eq("active", true);
 
     if (gameType) {
       query = query.eq("type", gameType);
@@ -184,7 +181,8 @@ export const endGameSession: RequestHandler = async (req, res) => {
         .eq("user_id", userId)
         .single();
 
-      const fieldName = session.currency === "GC" ? "gold_coins" : "sweep_coins";
+      const fieldName =
+        session.currency === "GC" ? "gold_coins" : "sweep_coins";
       const currentBalance = balance?.[fieldName] || 0;
       const newBalance = currentBalance + winAmount;
 
