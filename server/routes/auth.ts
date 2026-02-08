@@ -6,7 +6,10 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 console.log("[Auth Routes] Initializing Supabase...");
-console.log("[Auth Routes] VITE_SUPABASE_URL:", supabaseUrl ? "✓ Set" : "✗ Missing");
+console.log(
+  "[Auth Routes] VITE_SUPABASE_URL:",
+  supabaseUrl ? "✓ Set" : "✗ Missing",
+);
 console.log(
   "[Auth Routes] VITE_SUPABASE_ANON_KEY:",
   supabaseAnonKey ? "✓ Set" : "✗ Missing",
@@ -38,7 +41,9 @@ export const loginHandler: RequestHandler = async (req, res) => {
 
     if (!supabase) {
       console.error("[Auth] Supabase not initialized");
-      return res.status(500).json({ error: "Authentication service unavailable" });
+      return res
+        .status(500)
+        .json({ error: "Authentication service unavailable" });
     }
 
     const { email, password } = req.body;
@@ -107,7 +112,8 @@ export const loginHandler: RequestHandler = async (req, res) => {
     res.json(responseData);
   } catch (error) {
     console.error("[Auth] Login handler exception:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Internal server error";
     res.status(500).json({ error: errorMessage });
   }
 };
@@ -119,7 +125,9 @@ export const loginHandler: RequestHandler = async (req, res) => {
 export const registerHandler: RequestHandler = async (req, res) => {
   try {
     if (!supabase) {
-      return res.status(500).json({ error: "Authentication service unavailable" });
+      return res
+        .status(500)
+        .json({ error: "Authentication service unavailable" });
     }
 
     const { email, password, name } = req.body;
@@ -182,7 +190,9 @@ export const logoutHandler: RequestHandler = async (req, res) => {
 export const refreshHandler: RequestHandler = async (req, res) => {
   try {
     if (!supabase) {
-      return res.status(500).json({ error: "Authentication service unavailable" });
+      return res
+        .status(500)
+        .json({ error: "Authentication service unavailable" });
     }
 
     const { refresh_token } = req.body;

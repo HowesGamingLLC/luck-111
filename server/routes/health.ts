@@ -62,13 +62,15 @@ export const healthHandler: RequestHandler = async (req, res) => {
             }
           } catch (error) {
             health.supabase.canConnect = false;
-            health.supabase.error = error instanceof Error ? error.message : String(error);
+            health.supabase.error =
+              error instanceof Error ? error.message : String(error);
             console.error("[Health] Supabase connection error:", error);
           }
         }
       } catch (dnsError) {
         health.supabase.canResolve = false;
-        health.supabase.error = dnsError instanceof Error ? dnsError.message : String(dnsError);
+        health.supabase.error =
+          dnsError instanceof Error ? dnsError.message : String(dnsError);
         console.error("[Health] DNS resolution error:", dnsError);
       }
     }

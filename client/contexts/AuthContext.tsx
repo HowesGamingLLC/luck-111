@@ -164,7 +164,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       console.log("[Login] Response status:", response.status);
-      console.log("[Login] Response headers:", response.headers.get("content-type"));
+      console.log(
+        "[Login] Response headers:",
+        response.headers.get("content-type"),
+      );
 
       if (!response.ok) {
         let errorData;
@@ -173,7 +176,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           try {
             errorData = await response.json();
             console.error("[Login] Error response status:", response.status);
-            console.error("[Login] Error response data:", JSON.stringify(errorData, null, 2));
+            console.error(
+              "[Login] Error response data:",
+              JSON.stringify(errorData, null, 2),
+            );
             console.error("[Login] Error message:", errorData?.error);
           } catch {
             console.error("[Login] Failed to parse error response JSON");
@@ -235,7 +241,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("[Login] Loading full user profile from Supabase");
         await loadAndSetProfile(user.id);
       } else {
-        console.warn("[Login] Supabase not available, using minimal user object");
+        console.warn(
+          "[Login] Supabase not available, using minimal user object",
+        );
         // Fallback: set a minimal user object
         const minimalUser: User = {
           id: user.id,
@@ -250,7 +258,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           jackpotOptIn: false,
         };
         setUser(minimalUser);
-        localStorage.setItem("coinkrazy_auth_user", JSON.stringify(minimalUser));
+        localStorage.setItem(
+          "coinkrazy_auth_user",
+          JSON.stringify(minimalUser),
+        );
       }
 
       console.log("[Login] Login successful");
