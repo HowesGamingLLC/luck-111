@@ -88,11 +88,11 @@ export function IframeSlotGame({
 
     // For sweep coins, additional compliance checks
     if (currency === CurrencyType.SC) {
-      return hasAgreedToTerms && user?.isVerified;
+      return hasAgreedToTerms && user?.verified;
     }
 
     return false;
-  }, [mode, currency, hasAgreedToTerms, user?.isVerified, game.providerId]);
+  }, [mode, currency, hasAgreedToTerms, user?.verified, game.providerId]);
 
   // Launch game iframe
   const launchGame = useCallback(async () => {
@@ -106,7 +106,7 @@ export function IframeSlotGame({
       return;
     }
 
-    if (!canAffordWager(game.minBet, currency)) {
+    if (!canAffordWager(currency, game.minBet)) {
       setError(`Insufficient ${currency} balance. Minimum bet: ${game.minBet}`);
       return;
     }
@@ -130,7 +130,6 @@ export function IframeSlotGame({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user.sessionToken}`,
         },
         body: JSON.stringify(launchParams),
       });
@@ -196,7 +195,6 @@ export function IframeSlotGame({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.sessionToken}`,
         },
         body: JSON.stringify(sessionData),
       });
@@ -210,7 +208,7 @@ export function IframeSlotGame({
       setIsLoading(false);
       stopSessionMonitoring();
     }
-  }, [gameSession, game.id, user?.sessionToken, onGameEnd]);
+  }, [gameSession, game.id, onGameEnd]);
 
   // Generate unique session ID
   const generateSessionId = () => {
@@ -225,7 +223,6 @@ export function IframeSlotGame({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.sessionToken}`,
           },
           body: JSON.stringify({ sessionToken }),
         });
@@ -344,7 +341,7 @@ export function IframeSlotGame({
             <li>Confirm you are in an eligible jurisdiction</li>
           </ul>
 
-          {!user?.isVerified && (
+          {!user?.verified && (
             <Alert>
               <AlertDescription>
                 Please complete identity verification to use Sweep Coins.
