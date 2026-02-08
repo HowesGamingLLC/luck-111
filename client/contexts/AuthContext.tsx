@@ -224,65 +224,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: RegisterData): Promise<boolean> => {
     setIsLoading(true);
 
-    if (!supabase) {
-      console.warn("Supabase not initialized - cannot register");
-      setIsLoading(false);
-      return false;
-    }
-
     if (data.password !== data.confirmPassword) {
       setIsLoading(false);
       return false;
     }
 
-    const { data: signUpRes, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: { name: data.name },
-      },
-    });
+    try {
+      console.log("Attempting registration via proxy for:", data.email);
 
-    if (error || !signUpRes.user) {
+      // Call the backend proxy endpoint
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration error:", errorData.error);
+        setIsLoading(false);
+        return false;
+      }
+
+      const { user } = await response.json();
+
+      if (!user) {
+        console.warn("No user returned from registration");
+        setIsLoading(false);
+        return false;
+      }
+
+      // Create user profile in the database if Supabase is available
+      if (supabase) {
+        const profilePayload = {
+          id: user.id,
+          email: data.email,
+          name: data.name,
+          is_admin: false,
+          verified: false,
+          kyc_status: "not_submitted",
+          kyc_documents: null,
+          created_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString(),
+          total_losses: 0,
+          jackpot_opt_in: false,
+        };
+
+        const { error: profileErr } = await supabase
+          .from(PROFILES_TABLE)
+          .insert(profilePayload);
+
+        if (profileErr) {
+          console.error("Error creating profile:", profileErr);
+        }
+      }
+
+      setIsLoading(false);
+      return true;
+    } catch (error: unknown) {
+      console.error("Registration exception:", error);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+      }
       setIsLoading(false);
       return false;
     }
-
-    const profilePayload = {
-      id: signUpRes.user.id,
-      email: data.email,
-      name: data.name,
-      is_admin: false,
-      verified: false,
-      kyc_status: "not_submitted",
-      kyc_documents: null,
-      created_at: new Date().toISOString(),
-      last_login_at: new Date().toISOString(),
-      total_losses: 0,
-      jackpot_opt_in: false,
-    };
-
-    if (supabase) {
-      const { error: profileErr } = await supabase
-        .from(PROFILES_TABLE)
-        .insert(profilePayload);
-
-      if (profileErr) {
-        console.error("Error creating profile:", profileErr);
-      }
-
-      // If email confirmation is enabled, user may need to verify before session exists
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        await loadAndSetProfile(session.user.id);
-      }
-    }
-
-    setIsLoading(false);
-    return true;
   };
 
   const logout = async () => {
