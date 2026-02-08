@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthSafe } from "@/contexts/AuthContext";
 import { useCurrency, CurrencyType } from "@/contexts/CurrencyContext";
 
 export interface JackpotData {
