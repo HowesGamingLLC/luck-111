@@ -172,6 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: RegisterData): Promise<boolean> => {
     setIsLoading(true);
 
+    if (!supabase) {
+      console.warn("Supabase not initialized - cannot register");
+      setIsLoading(false);
+      return false;
+    }
+
     if (data.password !== data.confirmPassword) {
       setIsLoading(false);
       return false;
