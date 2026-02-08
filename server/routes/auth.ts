@@ -54,8 +54,18 @@ export const loginHandler: RequestHandler = async (req, res) => {
     });
 
     if (error) {
-      console.error("[Auth] Supabase auth error:", error);
-      return res.status(401).json({ error: error.message || "Authentication failed" });
+      console.error("[Auth] Supabase auth error details:");
+      console.error("[Auth] - Message:", error.message);
+      console.error("[Auth] - Status:", (error as any).status);
+      console.error("[Auth] - Code:", (error as any).code);
+      console.error("[Auth] - Full error:", JSON.stringify(error, null, 2));
+      return res.status(401).json({
+        error: error.message || "Authentication failed",
+        details: {
+          status: (error as any).status,
+          code: (error as any).code,
+        }
+      });
     }
 
     if (!data.session) {
