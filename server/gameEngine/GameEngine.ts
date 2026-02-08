@@ -26,7 +26,6 @@ export interface Player {
 
 export abstract class GameEngine extends EventEmitter {
   protected players: Map<string, Player> = new Map();
-  protected gameState: any = {};
   protected gameId: string;
   protected minPlayers: number;
   protected maxPlayers: number;
