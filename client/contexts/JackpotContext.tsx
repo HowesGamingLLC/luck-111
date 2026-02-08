@@ -95,11 +95,12 @@ const initialJackpots: JackpotData[] = [
 
 export function JackpotProvider({ children }: { children: ReactNode }) {
   const authContext = useAuthSafe();
-  const { updateBalance } = useCurrency();
+  const currencyContext = useCurrencySafe();
 
   // Use safe values when context isn't available
   const user = authContext?.user || null;
   const updateJackpotOptIn = authContext?.updateJackpotOptIn || (() => {});
+  const updateBalance = currencyContext?.updateBalance || (() => {});
 
   const [jackpots, setJackpots] = useState<JackpotData[]>(initialJackpots);
   const [totalContributed, setTotalContributed] = useState(0);
