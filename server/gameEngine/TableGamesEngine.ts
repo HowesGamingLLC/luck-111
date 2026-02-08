@@ -187,6 +187,21 @@ export class TableGamesEngine extends GameEngine {
     return score;
   }
 
+  private canAffordWager(
+    playerId: string,
+    amount: number,
+    currency: "GC" | "SC",
+  ): boolean {
+    const player = this.getPlayer(playerId) as TablePlayer | undefined;
+    if (!player) return false;
+
+    if (currency === "GC") {
+      return player.balance.goldCoins >= amount;
+    } else {
+      return player.balance.sweepCoins >= amount;
+    }
+  }
+
   public playBlackjack(
     playerId: string,
     tableId: string,
