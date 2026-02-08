@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { supabase } from "../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 // Get user transactions
 export const getUserTransactions: RequestHandler = async (req, res) => {
