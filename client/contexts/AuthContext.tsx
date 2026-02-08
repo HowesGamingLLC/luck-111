@@ -149,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
 
     try {
-      console.log("Attempting login via proxy for:", credentials.email);
+      console.log("[Login] Attempting login for:", credentials.email);
 
       // Call the backend proxy endpoint instead of Supabase directly
       const response = await fetch("/api/auth/login", {
@@ -163,20 +163,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       });
 
+      console.log("[Login] Response status:", response.status);
+      console.log("[Login] Response headers:", response.headers.get("content-type"));
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Login error:", errorData.error);
+        let errorData;
+        const contentType = response.headers.get("content-type");
+        if (contentType?.includes("application/json")) {
+          try {
+            errorData = await response.json();
+            console.error("[Login] Error response:", errorData);
+          } catch {
+            console.error("[Login] Failed to parse error response JSON");
+            errorData = { error: `HTTP ${response.status} error` };
+          }
+        } else {
+          const text = await response.text();
+          console.error("[Login] Non-JSON error response:", text);
+          errorData = { error: `HTTP ${response.status} error: ${text}` };
+        }
         setIsLoading(false);
         return false;
       }
 
-      const { session, user } = await response.json();
+      let responseData;
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        console.error("[Login] Response is not JSON:", contentType);
+        const text = await response.text();
+        console.error("[Login] Response text:", text);
+        setIsLoading(false);
+        return false;
+      }
+
+      try {
+        responseData = await response.json();
+      } catch (parseError) {
+        console.error("[Login] Failed to parse response JSON:", parseError);
+        setIsLoading(false);
+        return false;
+      }
+
+      const { session, user } = responseData;
 
       if (!session || !user) {
-        console.warn("No session or user returned from login");
+        console.warn("[Login] Missing session or user in response:", {
+          hasSession: !!session,
+          hasUser: !!user,
+        });
         setIsLoading(false);
         return false;
       }
+
+      console.log("[Login] Received session and user data");
 
       // Store session in localStorage for persistence
       localStorage.setItem(
@@ -190,8 +229,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Load and set the full user profile from the database
       if (supabase) {
+        console.log("[Login] Loading full user profile from Supabase");
         await loadAndSetProfile(user.id);
       } else {
+        console.warn("[Login] Supabase not available, using minimal user object");
         // Fallback: set a minimal user object
         const minimalUser: User = {
           id: user.id,
@@ -209,12 +250,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("coinkrazy_auth_user", JSON.stringify(minimalUser));
       }
 
+      console.log("[Login] Login successful");
       setIsLoading(false);
       return true;
     } catch (error: unknown) {
-      console.error("Login exception:", error);
+      console.error("[Login] Exception:", error);
       if (error instanceof Error) {
-        console.error("Error message:", error.message);
+        console.error("[Login] Error message:", error.message);
+        console.error("[Login] Error stack:", error.stack);
       }
       setIsLoading(false);
       return false;
