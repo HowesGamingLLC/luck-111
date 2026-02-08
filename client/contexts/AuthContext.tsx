@@ -319,6 +319,12 @@ export const useAuth = () => {
   return context;
 };
 
+// Safe version of useAuth that returns null if not available instead of throwing
+export const useAuthSafe = () => {
+  const context = useContext(AuthContext);
+  return context;
+};
+
 export const getAllUsers = async (): Promise<
   (User & { password?: never })[]
 > => {
