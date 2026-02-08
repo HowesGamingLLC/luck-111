@@ -298,11 +298,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      // Call logout endpoint to clean up on server
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Logout request failed:", error);
     }
+
+    // Clear local session data
     setUser(null);
     localStorage.removeItem("coinkrazy_auth_user");
+    localStorage.removeItem("coinkrazy_auth_session");
     localStorage.removeItem("coinkrazy_user");
     localStorage.removeItem("coinkrazy_transactions");
   };
