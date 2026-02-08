@@ -39,6 +39,18 @@ import {
   getPublicApiDocs,
   getRateLimitStatus,
 } from "./routes/publicApi";
+import {
+  getUserTransactions,
+  getUserBalance,
+  recordTransaction,
+} from "./routes/transactions";
+import {
+  getAllGames,
+  getGame,
+  createGameSession,
+  endGameSession,
+  validateGameSession,
+} from "./routes/games";
 
 export function createServer() {
   const app = express();
