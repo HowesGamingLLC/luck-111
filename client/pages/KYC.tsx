@@ -245,7 +245,7 @@ export default function KYC() {
               </div>
               <Badge
                 variant={
-                  user?.kycStatus === "approved" ? "default" : "secondary"
+                  kycStatus.text === "Verified" ? "default" : "secondary"
                 }
               >
                 {kycStatus.text}
