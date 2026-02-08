@@ -226,7 +226,10 @@ export function QuickActions({
       icon: Crown,
       color: "text-yellow-500",
       link: "/vip",
-      badge: currencyUser?.level && currencyUser.level >= 5 ? "Available" : "Level 5+",
+      badge:
+        currencyUser?.level && currencyUser.level >= 5
+          ? "Available"
+          : "Level 5+",
       disabled: !currencyUser?.level || currencyUser.level < 5,
       category: "financial",
       requiresAuth: true,

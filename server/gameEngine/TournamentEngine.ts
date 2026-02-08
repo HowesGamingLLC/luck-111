@@ -524,7 +524,10 @@ export class TournamentEngine extends EventEmitter {
     }
 
     if (tournament.status !== "registering") {
-      return { success: false, error: "Cannot unregister after registration closes" };
+      return {
+        success: false,
+        error: "Cannot unregister after registration closes",
+      };
     }
 
     const playerIndex = tournament.participants.findIndex(
@@ -801,9 +804,10 @@ export class TournamentEngine extends EventEmitter {
       .map((player, index) => ({ ...player, position: index + 1 }));
   }
 
-  public cancelTournament(
-    tournamentId: string,
-  ): { success: boolean; error?: string } {
+  public cancelTournament(tournamentId: string): {
+    success: boolean;
+    error?: string;
+  } {
     const tournament = this.tournaments.get(tournamentId);
     if (!tournament) {
       return { success: false, error: "Tournament not found" };
