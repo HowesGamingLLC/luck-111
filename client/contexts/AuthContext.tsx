@@ -77,6 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
+      if (!supabase) {
+        console.warn("Supabase not initialized - auth features disabled");
+        setIsLoading(false);
+        return;
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -87,6 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setIsLoading(false);
     };
+
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
