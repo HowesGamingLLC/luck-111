@@ -94,8 +94,16 @@ const initialJackpots: JackpotData[] = [
 ];
 
 export function JackpotProvider({ children }: { children: ReactNode }) {
-  const { user, updateJackpotOptIn } = useAuth();
+  const authContext = useAuth();
   const { updateBalance } = useCurrency();
+
+  // Handle case where auth context isn't available yet
+  if (!authContext) {
+    console.warn("JackpotProvider: AuthContext not available yet");
+    return <>{children}</>;
+  }
+
+  const { user, updateJackpotOptIn } = authContext;
   const [jackpots, setJackpots] = useState<JackpotData[]>(initialJackpots);
   const [totalContributed, setTotalContributed] = useState(0);
   const [recentWins, setRecentWins] = useState<JackpotWin[]>([
