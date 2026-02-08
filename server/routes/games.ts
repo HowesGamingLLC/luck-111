@@ -1,6 +1,11 @@
 import { RequestHandler } from "express";
-import { supabase } from "../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL || "",
+  process.env.VITE_SUPABASE_ANON_KEY || "",
+);
 
 // Get all active games
 export const getAllGames: RequestHandler = async (req, res) => {
