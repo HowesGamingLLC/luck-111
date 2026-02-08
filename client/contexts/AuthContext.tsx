@@ -210,21 +210,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       jackpot_opt_in: false,
     };
 
-    const { error: profileErr } = await supabase
-      .from(PROFILES_TABLE)
-      .insert(profilePayload);
+    if (supabase) {
+      const { error: profileErr } = await supabase
+        .from(PROFILES_TABLE)
+        .insert(profilePayload);
 
-    if (profileErr) {
-      console.error("Error creating profile:", profileErr);
-    }
+      if (profileErr) {
+        console.error("Error creating profile:", profileErr);
+      }
 
-    // If email confirmation is enabled, user may need to verify before session exists
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      // If email confirmation is enabled, user may need to verify before session exists
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    if (session?.user) {
-      await loadAndSetProfile(session.user.id);
+      if (session?.user) {
+        await loadAndSetProfile(session.user.id);
+      }
     }
 
     setIsLoading(false);
