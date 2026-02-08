@@ -177,7 +177,7 @@ export class TournamentEngine extends EventEmitter {
     });
   }
 
-  private scheduleTournament(config: {
+  public scheduleTournament(config: {
     name: string;
     gameType: Tournament["gameType"];
     type: Tournament["type"];
@@ -514,6 +514,38 @@ export class TournamentEngine extends EventEmitter {
     return { success: true };
   }
 
+  public unregisterPlayer(
+    tournamentId: string,
+    playerId: string,
+  ): { success: boolean; error?: string } {
+    const tournament = this.tournaments.get(tournamentId);
+    if (!tournament) {
+      return { success: false, error: "Tournament not found" };
+    }
+
+    if (tournament.status !== "registering") {
+      return { success: false, error: "Cannot unregister after registration closes" };
+    }
+
+    const playerIndex = tournament.participants.findIndex(
+      (p) => p.id === playerId,
+    );
+    if (playerIndex === -1) {
+      return { success: false, error: "Player not registered" };
+    }
+
+    const player = tournament.participants[playerIndex];
+    tournament.participants.splice(playerIndex, 1);
+
+    // Refund buy-in from prize pool
+    tournament.prizePool.gc -= tournament.buyIn.gc;
+    tournament.prizePool.sc -= tournament.buyIn.sc;
+
+    this.emit("playerUnregistered", { tournamentId, playerId });
+
+    return { success: true };
+  }
+
   public startTournament(tournamentId: string): {
     success: boolean;
     error?: string;
@@ -767,5 +799,30 @@ export class TournamentEngine extends EventEmitter {
     return tournament.participants
       .sort((a, b) => (b.currentChips || 0) - (a.currentChips || 0))
       .map((player, index) => ({ ...player, position: index + 1 }));
+  }
+
+  public cancelTournament(
+    tournamentId: string,
+  ): { success: boolean; error?: string } {
+    const tournament = this.tournaments.get(tournamentId);
+    if (!tournament) {
+      return { success: false, error: "Tournament not found" };
+    }
+
+    if (
+      tournament.status === "playing" ||
+      tournament.status === "finished" ||
+      tournament.status === "cancelled"
+    ) {
+      return {
+        success: false,
+        error: "Cannot cancel a tournament that is playing or already finished",
+      };
+    }
+
+    tournament.status = "cancelled";
+    this.emit("tournamentCancelled", tournament);
+
+    return { success: true };
   }
 }
