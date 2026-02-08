@@ -69,7 +69,7 @@ const dailySpinSegments: WheelSegment[] = [
   },
 ];
 
-export function DailySpinWheel({ size = 300, onSpin }: DailySpinWheelProps) {
+export function DailySpinWheel({ size = 300, onSpin, disabled = false }: DailySpinWheelProps) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [lastResult, setLastResult] = useState<WheelSegment | null>(null);
