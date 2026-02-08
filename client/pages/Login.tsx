@@ -39,7 +39,10 @@ export default function Login() {
     if (success) {
       navigate(from, { replace: true });
     } else {
-      setError("Invalid email or password");
+      // The error message is set in AuthContext, check console for details
+      setError(
+        "Login failed. Please check that you entered the correct credentials. If the problem persists, the authentication service may be unavailable.",
+      );
     }
   };
 
