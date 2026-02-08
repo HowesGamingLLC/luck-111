@@ -59,12 +59,25 @@ export const loginHandler: RequestHandler = async (req, res) => {
       console.error("[Auth] - Status:", (error as any).status);
       console.error("[Auth] - Code:", (error as any).code);
       console.error("[Auth] - Full error:", JSON.stringify(error, null, 2));
-      return res.status(401).json({
-        error: error.message || "Authentication failed",
-        details: {
-          status: (error as any).status,
-          code: (error as any).code,
-        }
+
+      let statusCode = 401;
+      let errorMessage = error.message || "Authentication failed";
+
+      // Check if it's a network error
+      if (
+        error.message?.includes("fetch failed") ||
+        error.message?.includes("ENOTFOUND")
+      ) {
+        statusCode = 503;
+        errorMessage =
+          "Authentication service temporarily unavailable. Supabase server cannot be reached. Please verify your Supabase project is running and accessible. Check /api/health for details.";
+      }
+
+      return res.status(statusCode).json({
+        error: errorMessage,
+        code: (error as any).code,
+        message: error.message,
+        hint: "If Supabase is unreachable, check network connectivity and verify the project exists at https://app.supabase.com",
       });
     }
 
