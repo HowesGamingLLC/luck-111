@@ -51,6 +51,12 @@ import {
   endGameSession,
   validateGameSession,
 } from "./routes/games";
+import {
+  loginHandler,
+  registerHandler,
+  logoutHandler,
+  refreshHandler,
+} from "./routes/auth";
 
 export function createServer() {
   const app = express();
