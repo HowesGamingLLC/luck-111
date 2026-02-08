@@ -117,6 +117,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadAndSetProfile = async (userId: string) => {
+    if (!supabase) {
+      console.warn("Supabase not initialized - cannot load profile");
+      return;
+    }
+
     const { data, error } = await supabase
       .from(PROFILES_TABLE)
       .select("*")
