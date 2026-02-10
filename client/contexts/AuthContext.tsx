@@ -76,6 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
+
     const init = async () => {
       if (!supabase) {
         console.warn("Supabase not initialized - auth features disabled");
@@ -117,10 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadAndSetProfile = async (userId: string) => {
-    if (!supabase) {
-      console.warn("Supabase not initialized - cannot load profile");
-      return;
-    }
+    if (!supabase) return;
 
     const { data, error } = await supabase
       .from(PROFILES_TABLE)
@@ -146,6 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
+    if (!supabase) return false;
+
     setIsLoading(true);
 
     try {
@@ -279,6 +283,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (data: RegisterData): Promise<boolean> => {
+    if (!supabase) return false;
+
     setIsLoading(true);
 
     if (data.password !== data.confirmPassword) {
@@ -355,16 +361,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    try {
-      // Call logout endpoint to clean up on server
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-    } catch (error) {
-      console.error("Logout request failed:", error);
+    if (supabase) {
+      await supabase.auth.signOut();
     }
-
-    // Clear local session data
     setUser(null);
     localStorage.removeItem("coinkrazy_auth_user");
     localStorage.removeItem("coinkrazy_auth_session");
@@ -373,11 +372,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<User>) => {
-    if (!user) return;
-    if (!supabase) {
-      console.warn("Supabase not initialized - cannot update profile");
-      return;
-    }
+    if (!user || !supabase) return;
 
     const updateRow: Record<string, any> = {};
     if (updates.name !== undefined) updateRow.name = updates.name;
@@ -457,6 +452,8 @@ export const useAuthSafe = () => {
 export const getAllUsers = async (): Promise<
   (User & { password?: never })[]
 > => {
+  if (!supabase) return [];
+
   const { data, error } = await supabase.from(PROFILES_TABLE).select("*");
   if (error) {
     console.error("Error fetching users:", error);

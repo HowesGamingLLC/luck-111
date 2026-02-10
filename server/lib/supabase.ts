@@ -9,13 +9,12 @@ if (!supabaseUrl || !serviceRole) {
   );
 }
 
-export const supabaseAdmin = createClient(
-  supabaseUrl ?? "",
-  serviceRole ?? "",
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  },
-);
+export const supabaseAdmin =
+  supabaseUrl && serviceRole
+    ? createClient(supabaseUrl, serviceRole, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      })
+    : null;
