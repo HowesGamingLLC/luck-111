@@ -40,6 +40,7 @@ import {
   Grid,
   List,
   Globe,
+  Gift,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -89,8 +90,8 @@ export default function EnhancedSlotsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedVolatility, setSelectedVolatility] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<string>("isPopular");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyType>(
     CurrencyType.GC,
@@ -99,6 +100,11 @@ export default function EnhancedSlotsPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [gamesPerPage] = useState(12);
+  const [showOnlyFreeSpins, setShowOnlyFreeSpins] = useState(false);
+  const [showOnlyBonus, setShowOnlyBonus] = useState(false);
+  const [showOnlyJackpot, setShowOnlyJackpot] = useState(false);
+  const [showPopularOnly, setShowPopularOnly] = useState(false);
+  const [showNewOnly, setShowNewOnly] = useState(false);
 
   const { user } = useCurrency();
 
@@ -248,6 +254,27 @@ export default function EnhancedSlotsPage() {
       );
     }
 
+    // Filter by features
+    if (showOnlyFreeSpins) {
+      filtered = filtered.filter((game) => game.hasFreespins);
+    }
+
+    if (showOnlyBonus) {
+      filtered = filtered.filter((game) => game.hasBonus);
+    }
+
+    if (showOnlyJackpot) {
+      filtered = filtered.filter((game) => game.hasJackpot);
+    }
+
+    if (showPopularOnly) {
+      filtered = filtered.filter((game) => game.isPopular);
+    }
+
+    if (showNewOnly) {
+      filtered = filtered.filter((game) => game.isNew);
+    }
+
     // Sort games
     filtered.sort((a, b) => {
       let aVal: any = a[sortBy as keyof SlotGame];
@@ -270,6 +297,11 @@ export default function EnhancedSlotsPage() {
     searchQuery,
     sortBy,
     sortOrder,
+    showOnlyFreeSpins,
+    showOnlyBonus,
+    showOnlyJackpot,
+    showPopularOnly,
+    showNewOnly,
   ]);
 
   // Get unique categories from games
@@ -483,6 +515,55 @@ export default function EnhancedSlotsPage() {
             </Alert>
           )}
 
+        {/* Quick Filters */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant={showPopularOnly ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowPopularOnly(!showPopularOnly)}
+            className="gap-2"
+          >
+            <Crown className="h-4 w-4" />
+            Popular
+          </Button>
+          <Button
+            variant={showNewOnly ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowNewOnly(!showNewOnly)}
+            className="gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            New
+          </Button>
+          <Button
+            variant={showOnlyFreeSpins ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowOnlyFreeSpins(!showOnlyFreeSpins)}
+            className="gap-2"
+          >
+            <Zap className="h-4 w-4" />
+            Free Spins
+          </Button>
+          <Button
+            variant={showOnlyBonus ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowOnlyBonus(!showOnlyBonus)}
+            className="gap-2"
+          >
+            <Gift className="h-4 w-4" />
+            Bonus
+          </Button>
+          <Button
+            variant={showOnlyJackpot ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowOnlyJackpot(!showOnlyJackpot)}
+            className="gap-2"
+          >
+            <Trophy className="h-4 w-4" />
+            Jackpot
+          </Button>
+        </div>
+
         {/* Filters and Controls */}
         <Card className="glass mb-6">
           <CardHeader>
@@ -514,7 +595,7 @@ export default function EnhancedSlotsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search games..."
+                placeholder="Search games by name, theme, or features..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -596,6 +677,7 @@ export default function EnhancedSlotsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="isPopular">Popular</SelectItem>
                     <SelectItem value="name">Name</SelectItem>
                     <SelectItem value="rtp">RTP</SelectItem>
                     <SelectItem value="volatility">Volatility</SelectItem>

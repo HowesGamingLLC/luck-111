@@ -175,11 +175,12 @@ fetch('${baseUrl}/api/public/embed/freeslotsgames/book-of-ra?width=600&height=40
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="api">API Endpoints</TabsTrigger>
             <TabsTrigger value="embed">Embed Code</TabsTrigger>
             <TabsTrigger value="examples">Examples</TabsTrigger>
+            <TabsTrigger value="providers">Setup Real Providers</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -427,6 +428,237 @@ fetch('${baseUrl}/api/public/embed/freeslotsgames/book-of-ra?width=600&height=40
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Test: Get Game Details
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Premium Providers Setup Tab */}
+          <TabsContent value="providers" className="space-y-6">
+            <Alert className="border-blue-500/50 bg-blue-500/10">
+              <Globe className="h-4 w-4 text-blue-500" />
+              <AlertDescription>
+                To access real casino slot games from premium providers, you'll
+                need to get API credentials from the providers and configure your
+                environment variables.
+              </AlertDescription>
+            </Alert>
+
+            {/* Pragmatic Play Setup */}
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle className="text-lg">Pragmatic Play Setup</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  One of the largest casino game providers with 200+ titles
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">1. Get API Credentials</h4>
+                  <ol className="text-sm space-y-2 list-decimal list-inside">
+                    <li>Visit Pragmatic Play Partner Portal</li>
+                    <li>Register your operator account</li>
+                    <li>Complete KYC verification</li>
+                    <li>Create integration profile</li>
+                    <li>Get your API key and operator ID</li>
+                  </ol>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() =>
+                      window.open(
+                        "https://www.pragmaticplaypartners.com",
+                        "_blank",
+                      )
+                    }
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Pragmatic Play Partners Portal
+                  </Button>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">2. Set Environment Variables</h4>
+                  <pre className="p-3 bg-muted rounded text-sm font-mono overflow-x-auto">
+{`PRAGMATIC_API_KEY=your_api_key_here
+PRAGMATIC_OPERATOR_ID=your_operator_id
+PRAGMATIC_SECURE_LOGIN=your_secure_login`}
+                  </pre>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">3. Restart Dev Server</h4>
+                  <pre className="p-3 bg-muted rounded text-sm font-mono">
+                    npm run dev
+                  </pre>
+                </div>
+
+                <div className="bg-card/50 p-3 rounded text-sm">
+                  <p className="font-medium mb-1">Available Games: 200+</p>
+                  <p className="text-muted-foreground">
+                    After setup, Pragmatic Play slots will appear in your game
+                    library automatically.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* BGaming Setup */}
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle className="text-lg">BGaming Setup</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  High-quality casino games with innovative mechanics
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">1. Get API Credentials</h4>
+                  <ol className="text-sm space-y-2 list-decimal list-inside">
+                    <li>Visit BGaming Partners page</li>
+                    <li>Fill out the partnership application</li>
+                    <li>Provide business documentation</li>
+                    <li>Complete verification process</li>
+                    <li>Receive API credentials</li>
+                  </ol>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() =>
+                      window.open("https://www.bgaming.com/partners", "_blank")
+                    }
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    BGaming Partners
+                  </Button>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">2. Set Environment Variables</h4>
+                  <pre className="p-3 bg-muted rounded text-sm font-mono overflow-x-auto">
+{`BGAMING_API_KEY=your_api_key_here
+BGAMING_OPERATOR_ID=your_operator_id`}
+                  </pre>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">3. Restart Dev Server</h4>
+                  <pre className="p-3 bg-muted rounded text-sm font-mono">
+                    npm run dev
+                  </pre>
+                </div>
+
+                <div className="bg-card/50 p-3 rounded text-sm">
+                  <p className="font-medium mb-1">Available Games: 80+</p>
+                  <p className="text-muted-foreground">
+                    BGaming slots will automatically integrate and display
+                    alongside free games.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Comparison Table */}
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle>Provider Comparison</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2">Provider</th>
+                        <th className="text-center p-2">Games</th>
+                        <th className="text-center p-2">Cost</th>
+                        <th className="text-center p-2">Setup Time</th>
+                        <th className="text-left p-2">Best For</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="p-2 font-medium">Free-Slots.Games</td>
+                        <td className="text-center p-2">17</td>
+                        <td className="text-center p-2 text-green-500">
+                          Free
+                        </td>
+                        <td className="text-center p-2">Instant</td>
+                        <td className="p-2">Testing & Free Games</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-medium">iDev.Games</td>
+                        <td className="text-center p-2">10</td>
+                        <td className="text-center p-2 text-green-500">
+                          Free
+                        </td>
+                        <td className="text-center p-2">Instant</td>
+                        <td className="p-2">HTML5 Game Variety</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="p-2 font-medium">Pragmatic Play</td>
+                        <td className="text-center p-2">200+</td>
+                        <td className="text-center p-2 text-warning">
+                          Revenue Share
+                        </td>
+                        <td className="text-center p-2">1-2 weeks</td>
+                        <td className="p-2">Premium Content</td>
+                      </tr>
+                      <tr>
+                        <td className="p-2 font-medium">BGaming</td>
+                        <td className="text-center p-2">80+</td>
+                        <td className="text-center p-2 text-warning">
+                          Revenue Share
+                        </td>
+                        <td className="text-center p-2">1-2 weeks</td>
+                        <td className="p-2">Innovative Games</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Troubleshooting */}
+            <Card className="glass">
+              <CardHeader>
+                <CardTitle>Troubleshooting</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Games Not Showing?</h4>
+                  <ul className="text-sm space-y-1 list-disc list-inside">
+                    <li>Verify environment variables are set correctly</li>
+                    <li>Restart the development server after setting variables</li>
+                    <li>Check the API health endpoint: /api/slots/admin/health</li>
+                    <li>
+                      Verify your API credentials are active in the provider
+                      dashboard
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">
+                    Authentication Errors?
+                  </h4>
+                  <ul className="text-sm space-y-1 list-disc list-inside">
+                    <li>Double-check API key spelling and formatting</li>
+                    <li>Ensure operator ID matches provider configuration</li>
+                    <li>
+                      Contact provider support to verify account is enabled
+                    </li>
+                    <li>Check if your IP is whitelisted (if required)</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">Rate Limiting?</h4>
+                  <p className="text-sm">
+                    Providers may have rate limits. Check your account dashboard
+                    for limits and upgrade if needed.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
