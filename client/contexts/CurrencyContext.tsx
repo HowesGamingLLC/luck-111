@@ -121,18 +121,18 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       // Build user profile
       const profile: UserProfile = {
         id: authUser.id,
-        email: authUser.email,
-        name: authUser.name || "",
+        email: authUser.email || "",
+        name: (authUser as any)?.user_metadata?.name || "",
         balance: {
           goldCoins: balanceData?.gold_coins || 0,
           sweepCoins: balanceData?.sweep_coins || 0,
         },
         isNewUser: !balanceData?.gold_coins,
-        lastDailySpinClaim: authUser.lastDailySpinClaim || null,
-        totalWagered: authUser.totalWagered || { goldCoins: 0, sweepCoins: 0 },
-        totalWon: authUser.totalWon || { goldCoins: 0, sweepCoins: 0 },
-        verified: authUser.verified || false,
-        level: authUser.level || 1,
+        lastDailySpinClaim: null,
+        totalWagered: { goldCoins: 0, sweepCoins: 0 },
+        totalWon: { goldCoins: 0, sweepCoins: 0 },
+        verified: (authUser as any)?.email_confirmed_at ? true : false,
+        level: 1,
       };
 
       setUser(profile);

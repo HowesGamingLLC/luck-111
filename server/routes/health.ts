@@ -38,33 +38,32 @@ export const healthHandler: RequestHandler = async (req, res) => {
 
         // Try to connect to Supabase
         if (supabaseUrl && supabaseAnonKey) {
-          try {
-            const supabase = createClient(supabaseUrl, supabaseAnonKey);
+          const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-            // Test a simple query
-            const { data, error } = await Promise.race([
+          // Test a simple query with timeout
+          try {
+            const result = (await Promise.race([
               supabase.from("profiles").select("id").limit(1),
-              new Promise((_, reject) =>
+              new Promise<never>((_, reject) =>
                 setTimeout(
                   () => reject(new Error("Supabase connection timeout")),
                   5000,
                 ),
               ),
-            ]);
+            ])) as any;
 
-            if (!error) {
+            if (!result?.error) {
               health.supabase.canConnect = true;
               console.log("[Health] Supabase connection successful");
             } else {
               health.supabase.canConnect = false;
-              health.supabase.error = (error as any).message;
-              console.error("[Health] Supabase query error:", error);
+              health.supabase.error = result?.error?.message;
+              console.error("[Health] Supabase query error:", result?.error);
             }
-          } catch (error) {
+          } catch (queryError) {
             health.supabase.canConnect = false;
-            health.supabase.error =
-              error instanceof Error ? error.message : String(error);
-            console.error("[Health] Supabase connection error:", error);
+            health.supabase.error = queryError instanceof Error ? queryError.message : String(queryError);
+            console.error("[Health] Supabase query error:", queryError);
           }
         }
       } catch (dnsError) {
