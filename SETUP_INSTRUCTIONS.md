@@ -21,8 +21,8 @@ After running the SQL schema, you need to create the admin user. There are two w
 
 1. Go to Authentication → Users
 2. Click "Add User"
-3. Email: `coinkrazy26@gmail.com`
-4. Password: `admin123`
+3. Email: `<your-admin-email@example.com>`
+4. Password: `<your-secure-password>`
 5. Check "Auto confirm user"
 6. Create user
 
